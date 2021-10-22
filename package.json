@@ -1,0 +1,15 @@
+{
+  "name": "sreject-3rd-party-chat",
+  "version": "1.0.0",
+  "description": "Listens for chat messages from a 3rd party's twitch chat",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "SReject",
+  "license": "ISC",
+  "dependencies": {
+    "@twurple/auth": "^5.0.5",
+    "@twurple/chat": "^5.0.5"
+  }
+}
