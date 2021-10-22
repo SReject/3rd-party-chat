@@ -57,7 +57,7 @@ module.exports = {
                 description: 'Returns the chat message received',
                 possibleDataOutput: ["text"],
             },
-            evaluator: async meta => meta.eventData.rawText
+            evaluator: async ({ metadata }) => metadata.eventData.rawText
         })
 
 
