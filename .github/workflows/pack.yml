@@ -51,7 +51,8 @@ jobs:
       - name: Zip files
         uses: vimtor/action-zip@v1
         with:
-          files: index.json process-message.json package.json node_modules/
+          files: index.js process-message.js package.json node_modules/
+          recursive: false
           dest: 3rd-party-chat.zip
 
       - name: Draft Release
