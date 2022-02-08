@@ -25,11 +25,7 @@ jobs:
 
       - name: 'Check: package version does not have corrosponding git tag'
         shell: bash
-        run: git show-ref --tags --verify --quiet -- "refs/tags/v${{ steps.package.outputs.version }}" && exit 1
-
-      - name: 'Storing Version'
-        id: 'finished'
-        run: echo "::set-output name=version::${{ steps.package.outputs.version }}"
+        run: git show-ref --tags --verify --quiet -- "refs/tags/v${{ steps.package.outputs.version }}" && exit 1 || echo "::set-output name=version::${{ steps.package.outputs.version }}"
 
   pack:
     name: 'Packe & Draft Release'
