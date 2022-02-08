@@ -1,0 +1,80 @@
+on:
+  workflow_dispatch:
+  push:
+    branches: 'master'
+
+jobs:
+
+  # Check if the branch's package.json version has a corrosponding git tag
+  # If it does exit with an error to stop compilation
+  checktag:
+    name: 'Check if version is not tagged'
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.finished.outputs.version }}
+    steps:
+      - name: Checkout branch the workflow is being ran on
+        uses: 'actions/checkout@v2'
+
+      - name: Fetch tags
+        run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+
+      - name: Read package.json
+        id: package
+        uses: gregoranders/nodejs-project-info@v0.0.1
+
+      - name: 'Check: package version does not have corrosponding git tag'
+        shell: bash
+        run: git show-ref --tags --verify --quiet -- "refs/tags/v${{ steps.package.outputs.version }}" && exit 1
+
+      - name: 'Finishing'
+        id: 'finished'
+        run: echo "::set-output name=version::${{ steps.package.outputs.version }}"
+
+  pack:
+    name: 'Packe & Draft Release'
+    needs: [checktag]
+    runs-on: ubuntu-latest
+    outputs:
+      success: ${{ steps.finished.outputs.success }}
+
+    steps:
+
+      - name: Checkout branch the workflow is being ran on
+        uses: 'actions/checkout@v2'
+
+      - name: Setup Nodejs
+        uses: 'actions/setup-node@v2'
+        with:
+          node-version: '14.x'
+
+      - name: Install Project Dependencies
+        run: npm ci --quiet
+
+      - name: Zip files
+        uses: papeloto/action-zip@v1
+        with:
+          files: index.json process-message.json package.json node_modules/
+          dest: 3rd-party-chat.zip
+
+      - name: Draft Release
+        id: draft
+        uses: 'actions/create-release@v1'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ needs.checktag.outputs.version }}
+          release_name: 3rd Party Chat Listener v${{ needs.checktag.outputs.version }}
+          body: "##3rd Party Chat Listener v${{ needs.checktag.outputs.version }}\n\n"
+          draft: true
+
+      - name: Upload Zip
+        uses: 'actions/upload-release-asset@v1'
+        env:
+          GITHUB_TOKEN: $${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.draft.outputs.upload_url }}
+          asset_path: './3rd-party-chat.zip'
+          asset_name: '3rd-Party-Chat-Listener-v${{ needs.checktag.outputs.version }}.zip'
+          asset_content_type: application/octet-stream
+
