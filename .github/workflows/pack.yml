@@ -28,7 +28,7 @@ jobs:
         run: git show-ref --tags --verify --quiet -- "refs/tags/v${{ steps.package.outputs.version }}" && exit 1 || echo "::set-output name=version::${{ steps.package.outputs.version }}"
 
   pack:
-    name: 'Packe & Draft Release'
+    name: 'Pack & Draft Release'
     needs: [checktag]
     runs-on: ubuntu-latest
     outputs:
@@ -48,7 +48,7 @@ jobs:
         run: npm ci --quiet
 
       - name: Zip files
-        uses: papeloto/action-zip@v1
+        uses: vimtor/action-zip@v1
         with:
           files: index.json process-message.json package.json node_modules/
           dest: 3rd-party-chat.zip
