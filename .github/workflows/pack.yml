@@ -11,7 +11,7 @@ jobs:
     name: 'Check if version is not tagged'
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.finished.outputs.version }}
+      version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout branch the workflow is being ran on
         uses: 'actions/checkout@v2'
@@ -24,6 +24,7 @@ jobs:
         uses: gregoranders/nodejs-project-info@v0.0.1
 
       - name: 'Check: package version does not have corrosponding git tag'
+        id: version
         shell: bash
         run: git show-ref --tags --verify --quiet -- "refs/tags/v${{ steps.package.outputs.version }}" && exit 1 || echo "::set-output name=version::${{ steps.package.outputs.version }}"
 
@@ -67,7 +68,7 @@ jobs:
       - name: Upload Zip
         uses: 'actions/upload-release-asset@v1'
         env:
-          GITHUB_TOKEN: $${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.draft.outputs.upload_url }}
           asset_path: './3rd-party-chat.zip'
